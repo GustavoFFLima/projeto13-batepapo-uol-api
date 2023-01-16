@@ -122,3 +122,21 @@ app.post("/status", async (req, res) => {
         res.status(500).send(erro)
     }
 })
+
+const usuarioInativos = async () => {
+    const dataAtual = Date.now()
+    const tempo = dayjs().format('HH:mm:ss')
+
+    try {
+        await (await mensagens.find({}).toArray()).map(async (detail) => {
+            if(detail.lastStatus < dataAtual - 10000) {
+                await usuarios.deleteOne(detail)
+                await mensagens.insertOne({from: detail.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: tempo})
+            }
+        })     
+    } catch (erro) {
+        res.status(500).send(erro)
+    }
+}
+
+setInterval(usuarioInativos, 15000)
