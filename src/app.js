@@ -23,7 +23,7 @@ try {
     console.log(erro)
 } 
 
-app.post("/participants", (req,res) => {
+app.post("/participants", async (req,res) => {
     const dados = req.body
     console.log(dados)
     res.send('ok')
