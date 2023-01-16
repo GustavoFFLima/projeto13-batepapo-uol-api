@@ -69,7 +69,7 @@ app.post("/messages", async (req, res) => {
     const validaMensagemSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: joi.string().required().valid('mensagem')
+        type: joi.string().required().valid('mensagem', "private_message")
     })
 
     const validandoMensagem = validaMensagemSchema.validate(dados)
@@ -80,7 +80,7 @@ app.post("/messages", async (req, res) => {
 
     try {
         const usuario = await usuarios.findOne({ name: usuariologado })
-        if(usuario) return res.sendStatus(422)
+        if(!usuario) return res.sendStatus(422)
 
         const tempo = dayjs().format('HH:mm:ss')
         const mensagem = {from: usuariologado, to:dados.to, text: dados.text, type: dados.type, time: tempo}
