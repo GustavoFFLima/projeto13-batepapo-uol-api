@@ -93,3 +93,13 @@ app.post("/messages", async (req, res) => {
         res.status(500).send(erro)
     }
 })
+
+app.get("/messages", async (req, res) => {
+    try {
+        const mensgensEnviadas = await mensagens.find({}).toArray() 
+        //const maximoCaractere =
+        res.send(mensgensEnviadas)
+    } catch (erro) {
+        res.status(500).send(erro)
+    }
+})
