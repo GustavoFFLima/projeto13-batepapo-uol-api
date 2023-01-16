@@ -97,8 +97,15 @@ app.post("/messages", async (req, res) => {
 app.get("/messages", async (req, res) => {
     try {
         const mensgensEnviadas = await mensagens.find({}).toArray() 
-        //const maximoCaractere =
-        res.send(mensgensEnviadas)
+        
+        if(req.query?.limit) {
+            const limit = parseInt(req.query?.limit)
+            if(typeof limit !== "number" || isNaN(limit)) {
+                res.status(400).send("limit error")
+            }
+            return res.send(mensgensEnviadas.slice(-limit).reverse())
+        }
+        res.send(mensgensEnviadas.reverse())
     } catch (erro) {
         res.status(500).send(erro)
     }
