@@ -29,8 +29,6 @@ const mensagens = db.collection('messages')
 
 app.post("/participants", async (req,res) => {
     const dados = req.body
-    console.log(dados)
-    console.log(dados.name)
     const validaUsuarioSchema = joi.object({
         name: joi.string().required()
     })
@@ -65,17 +63,33 @@ app.get("/participants", async (req,res) => {
     }
 })
 
+app.post("/messages", async (req, res) => {
+    const dados = req.body
+    console.log(dados)
+    const usuariologado = req.header.user
+    console.log(usuariologado)
+    const validaMensagemSchema = joi.object({
+        to: joi.string().required(),
+        text: joi.string().required(),
+        type: joi.string().required().valid('mensagem')
+    })
 
+    const validandoMensagem = validaMensagemSchema.validate(dados)
+    if(validandoMensagem.error) {
+        const erros = validandoMensagem.error.details.map((detail) => detail.message)
+        return res.status(422).send(erros)
+    }
 
+    try {
+        const usuario = await usuarios.findOne({ name: usuariologado })
+        if(usuario) return res.sendStatus(422)
 
+        const tempo = dayjs().format('HH:mm:ss')
+        const mensagem = {from: usuariologado, to:dados.to, text: dados.text, type: dados.type, time: tempo}
 
-
-
-
-
-
-    // const validadeMensagem = joi.object({
-    //     to: joi.string().required(),
-    //     text: joi.string().required(),
-    //     type: joi.string().required().valid('mensagem')
-    // })
+        await mensagens.insertOne({ ...mensagem })
+        res.sendStatus(201)
+    } catch (erro) {
+        res.status(500).send(erro)
+    }
+})
