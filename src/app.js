@@ -65,9 +65,7 @@ app.get("/participants", async (req,res) => {
 
 app.post("/messages", async (req, res) => {
     const dados = req.body
-    console.log(dados)
     const usuariologado = req.header.user
-    console.log(usuariologado)
     const validaMensagemSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
@@ -106,6 +104,20 @@ app.get("/messages", async (req, res) => {
             return res.send(mensgensEnviadas.slice(-limit).reverse())
         }
         res.send(mensgensEnviadas.reverse())
+    } catch (erro) {
+        res.status(500).send(erro)
+    }
+})
+
+app.post("/status", async (req, res) => {
+    try {
+        const usuariologado = req.header.user
+        const usuario = await usuarios.findOne({ name: usuariologado })
+
+        if(!usuario) return res.sendStatus(404)
+
+        await usuarios.updateOne({ name: usuariologado }, {$set: {lastStatus:Date.now()}})
+        res.sendStatus(200)
     } catch (erro) {
         res.status(500).send(erro)
     }
