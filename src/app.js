@@ -47,7 +47,7 @@ app.post("/participants", async (req,res) => {
 
         await usuarios.insertOne({name:dados.name, lastStatus: Date.now() })
         const tempo = dayjs().format('HH:mm:ss')
-        const mensagem = {from: dados.name, to:'Todos', text: 'entra na sala...', type: 'status', tempo}
+        const mensagem = {from: dados.name, to:'Todos', text: 'entra na sala...', type: 'status', time: tempo}
 
         mensagens.insertOne({ ...mensagem })
         res.sendStatus(201)
