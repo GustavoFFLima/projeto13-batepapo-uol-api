@@ -113,7 +113,7 @@ app.get("/messages", async (req, res) => {
         if(!limit) {
             return res.send(mensgensEnviadas.reverse())
         }
-//test
+
         const limitSchema = joi.number().positive()
     
         const validandoLimit = limitSchema.validate(dados)
@@ -131,7 +131,7 @@ app.get("/messages", async (req, res) => {
 
 app.post("/status", async (req, res) => {
     try {
-        const usuariologado = req.header.user
+        const usuariologado = req.headers.user
         const usuario = await usuarios.findOne({ name: usuariologado })
 
         if(!usuario) return res.sendStatus(404)
@@ -148,12 +148,22 @@ const usuarioInativos = async () => {
     const tempo = dayjs().format('HH:mm:ss')
 
     try {
-        await (await mensagens.find({}).toArray()).map(async (detail) => {
-            if(detail.lastStatus < dataAtual - 10000) {
-                await usuarios.deleteOne(detail)
-                await mensagens.insertOne({from: detail.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: tempo})
+        const usuarioRetirar = await usuarios.find({
+            lastStatus:{$lt:dataAtual - 10000}
+        }).toArray()
+        const mensagemSaida = usuarioRetirar.map(async usuario => {
+            return {
+                from: usuario.name, 
+                to: 'Todos', 
+                text: 'sai da sala...', 
+                type: 'status', 
+                time: tempo
             }
-        })     
+        })    
+        await mensagens.insertMany(mensagemSaida)
+        await usuarios.deleteMany({
+            lastStatus:{$lt:dataAtual - 10000}
+        })
     } catch (erro) {
         res.status(500).send(erro)
     }
