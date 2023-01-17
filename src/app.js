@@ -101,7 +101,7 @@ app.get("/messages", async (req, res) => {
         if(req.query?.limit) {
             const limit = parseInt(req.query?.limit)
             if(typeof limit !== "number" || isNaN(limit)) {
-                res.status(400).send("limit error")
+                res.status(422).send("limit error")
             }
             return res.send(mensgensEnviadas.slice(-limit).reverse())
         }
