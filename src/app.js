@@ -69,7 +69,7 @@ app.post("/messages", async (req, res) => {
     const validaMensagemSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: joi.string().required().valid('mensagem', "private_message")
+        type: joi.string().required().valid('message', "private_message")
     })
 
     const validandoMensagem = validaMensagemSchema.validate(dados)
@@ -78,9 +78,8 @@ app.post("/messages", async (req, res) => {
         return res.status(422).send(erros)
     }
 
-
     try {
-        const usuario = await db.collection('participants').findOne({ name: user })
+        const usuario = await usuarios.findOne({ name: user })
         console.log(usuario)
         if(!usuario) return res.sendStatus(422)
 
@@ -88,7 +87,7 @@ app.post("/messages", async (req, res) => {
         console.log(user)
         const mensagem = {from: user, to:dados.to, text: dados.text, type: dados.type, time: tempo}
 
-        await mensagens.insertOne({ ...mensagem })
+        await mensagens.insertOne(mensagem)
         res.sendStatus(201)
     } catch (erro) {
         res.status(500).send(erro)
