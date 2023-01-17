@@ -113,7 +113,7 @@ app.get("/messages", async (req, res) => {
         if(!limit) {
             return res.send(mensgensEnviadas.reverse())
         }
-
+//test
         const limitSchema = joi.number().positive()
     
         const validandoLimit = limitSchema.validate(dados)
