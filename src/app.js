@@ -96,12 +96,24 @@ app.post("/messages", async (req, res) => {
 
 app.get("/messages", async (req, res) => {
     try {
+        const validaMensagemSchema = joi.object({
+            to: joi.string().required(),
+            text: joi.string().required(),
+            type: joi.string().required().valid('message', "private_message").required()
+        })
+    
+        const validandoMensagem = validaMensagemSchema.validate(dados)
+        if(validandoMensagem.error) {
+            const erros = validandoMensagem.error.details.map((detail) => detail.message)
+            return res.status(422).send(erros)
+        }
+        
         const mensgensEnviadas = await mensagens.find({}).toArray() 
         
         if(req.query?.limit) {
             const limit = parseInt(req.query?.limit)
             if(typeof limit !== "number" || isNaN(limit)) {
-                res.status(422).send("limit error")
+                res.status(400).send("limit error")
             }
             return res.send(mensgensEnviadas.slice(-limit).reverse())
         }
