@@ -116,7 +116,7 @@ app.get("/messages", async (req, res) => {
 
         const limitSchema = joi.number().positive()
     
-        const validandoLimit = limitSchema.validate(dados)
+        const validandoLimit = limitSchema.validate(limit)
         if(validandoLimit.error) {
             const erros = validandoLimit.error.details.map((detail) => detail.message)
             return res.status(422).send(erros)
@@ -125,6 +125,7 @@ app.get("/messages", async (req, res) => {
         return res.send(mensgensEnviadas.slice(-limit).reverse())
                
     } catch (erro) {
+        console.log(erro)
         res.status(500).send(erro)
     }
 })
@@ -160,12 +161,13 @@ const usuarioInativos = async () => {
                 time: tempo
             }
         })    
-        await mensagens.insertMany(mensagemSaida)
-        await usuarios.deleteMany({
-            lastStatus:{$lt:dataAtual - 10000}
-        })
+        if(usuarioRetirar.length > 0){
+                await mensagens.insertMany(mensagemSaida)
+                await usuarios.deleteMany({
+                    lastStatus:{$lt:dataAtual - 10000}
+            })}
     } catch (erro) {
-        res.status(500).send(erro)
+        console.log(erro)
     }
 }
 
